@@ -37,7 +37,7 @@ class Dataset():
         self.q_seqBounds = None
 
     def loadPreComputedDescriptors(self,ft1,ft2,seqBounds=None):
-        self.dbDescs = ft1
+        self.dbDescs = ft1  #
         self.qDescs = ft2
         print("All Db descs: ", self.dbDescs.shape)
         print("All Qry descs: ", self.qDescs.shape)
@@ -52,7 +52,7 @@ class Dataset():
     def get_whole_training_set(self, onlyDB=False):
         structFile = join(self.struct_dir, self.train_mat_file)
         indsSplit = self.trainInds
-        return WholeDatasetFromStruct( structFile, indsSplit, self.dbDescs, self.qDescs, seqL=self.seqL, onlyDB=onlyDB, seqBounds=[self.db_seqBounds,self.q_seqBounds],seqL_filterData=self.seqL_filterData)
+        return WholeDatasetFromStruct(structFile, indsSplit, self.dbDescs, self.qDescs, seqL=self.seqL, onlyDB=onlyDB, seqBounds=[self.db_seqBounds,self.q_seqBounds],seqL_filterData=self.seqL_filterData)
 
     def get_whole_val_set(self):
         structFile = join(self.struct_dir, self.val_mat_file)
@@ -112,15 +112,15 @@ class Dataset():
 
 def getSeqInds(idx,seqL,maxNum,minNum=0,retLenDiff=False):
     seqLOrig = seqL
-    seqInds = np.arange(max(minNum,idx-seqL//2),min(idx+seqL-seqL//2,maxNum),1)
+    seqInds = np.arange(max(minNum,idx-seqL//2),min(idx+seqL-seqL//2,maxNum),1) #最小值是 db或q整个数据集的最小边界和当前index-seqL//2的最大值
     lenDiff = seqLOrig - len(seqInds)
-    if retLenDiff:
+    if retLenDiff:  #这个我认为就是检查有没有偏差，并返回偏差，实际计算不需要
         return lenDiff
 
     if seqInds[0] == minNum:
-        seqInds = np.concatenate([seqInds,np.arange(seqInds[-1]+1,seqInds[-1]+1+lenDiff,1)])
-    elif lenDiff > 0 and seqInds[-1] in range(maxNum-1,maxNum):
-        seqInds = np.concatenate([np.arange(seqInds[0]-lenDiff,seqInds[0],1),seqInds])
+        seqInds = np.concatenate([seqInds,np.arange(seqInds[-1]+1,seqInds[-1]+1+lenDiff,1)]) #当达到下边界时候，上面补齐
+    elif lenDiff > 0 and seqInds[-1] in range(maxNum-1,maxNum):   #range(maxNum-1,maxNum)这个实际上就是maxNum-1
+        seqInds = np.concatenate([np.arange(seqInds[0]-lenDiff,seqInds[0],1),seqInds]) #当达到上边界时候，下面补齐
     return seqInds
 
 def getValidSeqInds(seqBounds,seqL):
@@ -223,16 +223,18 @@ def print_db_concise(db):
 class WholeDatasetFromStruct(data.Dataset):
     def __init__(self, structFile, indsSplit, dbDescs, qDescs, onlyDB=False, seqL=1, seqBounds=None,seqL_filterData=None):
         super().__init__()
-
+        #print("indsSplit",indsSplit) [array([    0,     1,     2, ..., 14997, 14998, 14999]), array([    0,     1,     2, ..., 14997, 14998, 14999])]
+        #print("dbDescs",dbDescs.shape) (27592, 4096)
         self.seqL = seqL
         self.filterBoundaryInds = False if seqL_filterData is None else True
 
         self.dbStruct = parse_db_struct(structFile)
+        #print("self.dbStruct", self.dbStruct)
 
         self.images = dbDescs[indsSplit[0]]
 
         if seqBounds[0] is None:
-            self.seqBounds = np.array([[0,len(self.images)] for _ in range(len(self.images))])
+            self.seqBounds = np.array([[0,len(self.images)] for _ in range(len(self.images))]) #(15000,2)
 
         if not onlyDB:
             qImages = qDescs[indsSplit[1]]
@@ -244,11 +246,11 @@ class WholeDatasetFromStruct(data.Dataset):
         if seqBounds[0] is not None:
             db_seqBounds = seqBounds[0][indsSplit[0]]
             q_seqBounds = db_seqBounds[-1,-1] + seqBounds[1][indsSplit[1]]
-            self.seqBounds = np.vstack([db_seqBounds,q_seqBounds])
+            self.seqBounds = np.vstack([db_seqBounds,q_seqBounds]) #按行放在一起
 
         self.validInds = np.arange(len(self.images))
-        self.validInds_db = np.arange(self.dbStruct.numDb)
-        self.validInds_q = np.arange(self.dbStruct.numQ)
+        self.validInds_db = np.arange(self.dbStruct.numDb) #self.dbStruct.numDb=15000
+        self.validInds_q = np.arange(self.dbStruct.numQ) #self.dbStruct.numQ=15000
         if self.filterBoundaryInds:
             validFlags = getValidSeqInds(self.seqBounds,seqL_filterData)
             self.validInds = np.argwhere(validFlags).flatten()
@@ -278,10 +280,13 @@ class WholeDatasetFromStruct(data.Dataset):
         # fit NN to find them, search by radius
         if self.positives is None:
             knn = NearestNeighbors(n_jobs=-1)
-            knn.fit(self.dbStruct.utmDb)
+            knn.fit(self.dbStruct.utmDb) #训练
 
             print("Using Localization Radius: ", self.dbStruct.posDistThr)
+            print("datasets self.dbStruct.utmQ: " + str(self.dbStruct.utmQ))
             self.distances, self.positives = knn.radius_neighbors(self.dbStruct.utmQ, radius=self.dbStruct.posDistThr)
+            print("datasets self.distances: " + str(self.distances))
+            print("datasets self.positives"  + str(self.positives))
 
         if retDists:
             return self.positives, self.distances
@@ -327,10 +332,11 @@ class QueryDatasetFromStruct(data.Dataset):
 
         self.nontrivial_positives = list(self.nontrivial_positives)
 
+
         # radius returns unsorted, sort once now so we dont have to later
         for i, posi in enumerate(self.nontrivial_positives):
             self.nontrivial_positives[i] = np.sort(posi)
-
+        #print("nontrivial_positives:" + str(self.nontrivial_positives))  #15000 train_query_set个，每个有21个数字序列，【0，15】。。【1，21】。。【14980，15000】，【14985，15000】
         # its possible some queries don't have any non trivial potential positives
         # lets filter those out
         self.queries = np.where(np.array([len(x) for x in self.nontrivial_positives]) > 0)[0]
@@ -338,7 +344,7 @@ class QueryDatasetFromStruct(data.Dataset):
 
         # potential negatives are those outside of posDistThr range
         potential_positives = knn.radius_neighbors(self.dbStruct.utmQ,
-                                                   radius=self.dbStruct.posDistThr,
+                                               radius=self.dbStruct.posDistThr,
                                                    return_distance=False)
 
         self.potential_negatives = []
@@ -355,6 +361,7 @@ class QueryDatasetFromStruct(data.Dataset):
             h5feat = h5.get("features")
 
             qOffset = self.dbStruct.numDb
+            #print("qOffset: "+ str(qOffset)) #15000
             qFeat = h5feat[index + qOffset]
 
             posFeat = h5feat[self.nontrivial_positives[index].tolist()]
@@ -382,7 +389,7 @@ class QueryDatasetFromStruct(data.Dataset):
 
             negFeat = h5feat[negSample.astype(int).tolist()]
             if self.use_faiss:
-                faiss_index = faiss.IndexFlatL2(posFeat.shape[1])
+                faiss_index = faiss.IndexFlatL2(posFeat.shape[1])  #？？应该是negFeat？
                 # noinspection PyArgumentList
                 faiss_index.add(negFeat)
                 # noinspection PyArgumentList
@@ -390,7 +397,6 @@ class QueryDatasetFromStruct(data.Dataset):
                 dNeg = np.sqrt(dNeg)
             else:
                 knn.fit(negFeat)
-
                 # to quote netvlad paper code: 10x is hacky but fine
                 dNeg, negNN = knn.kneighbors(qFeat.reshape(1, -1), self.nNeg * 10)
 

@@ -23,6 +23,8 @@ def get_dataset(opt):
         dataset.testInds = [testInds, testInds]
         encoder_dim = dataset.loadPreComputedDescriptors(ft1,ft2)
 
+        #print("encoder_dim: " +str(encoder_dim)) #4096
+
     elif 'oxford' in opt.dataset.lower():
         ref, qry = '2015-03-17-11-08-44', '2014-12-16-18-44-24'
         structStr = "{}_{}_{}".format(opt.dataset,ref,qry)
@@ -78,10 +80,10 @@ def get_splits(opt, dataset):
 
         train_set = dataset.get_training_query_set(opt.margin)
 
-        print('====> Training whole set:', len(whole_train_set))
-        print('====> Training query set:', len(train_set))
+        print('====> Training whole set:', len(whole_train_set)) #30000
+        print('====> Training query set:', len(train_set)) #15000
         whole_test_set = dataset.get_whole_val_set()
-        print('===> Evaluating on val set, query count:', whole_test_set.dbStruct.numQ)
+        print('===> Evaluating on val set, query count:', whole_test_set.dbStruct.numQ) #3000
     elif opt.mode.lower() == 'test':
         if opt.split.lower() == 'test':
             whole_test_set = dataset.get_whole_test_set()

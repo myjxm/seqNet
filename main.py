@@ -17,6 +17,7 @@ from get_models import get_model
 from train import train
 from test import test
 
+
 parser = argparse.ArgumentParser(description='seqnet')
 parser.add_argument('--mode', type=str, default='train', help='Mode', choices=['train', 'test'])
 
@@ -51,9 +52,10 @@ parser.add_argument('--evalEvery', type=int, default=1, help='Do a validation se
 parser.add_argument('--patience', type=int, default=0, help='Patience for early stopping. 0 is off.')
 parser.add_argument('--split', type=str, default='val', help='Data split to use for testing. Default is val', choices=['test', 'train', 'val'])
 parser.add_argument('--numSamples2Project', type=int, default=-1, help='TSNE uses these many samples ([:n]) to project data to 2D; set to -1 to disable')
+
 parser.add_argument('--extractOnly',  action='store_true', help='extract descriptors')
 parser.add_argument('--predictionsFile', type=str, default=None, help='path to prior predictions data')
-parser.add_argument('--seqL_filterData', type=int, help='during testing, db and qry inds will be removed that violate sequence boundaries for this given sequence length')
+parser.add_argument('--seqL_filterData', type=int, help='during testing, db and qry inds will be removed that violate sequence boundaries for this given sequence length')  #在测试期间，将删除那些违反给定序列长度边界的数据库（db）和查询（qry）索引
 
 # dataset, model etc.
 parser.add_argument('--dataset', type=str, default='nordland-sw', help='Dataset to use', choices=['nordland-sw', 'nordland-sf', 'oxford-v1.0', 'oxford-pnv', 'msls'])
@@ -64,7 +66,7 @@ parser.add_argument('--seqL', type=int, default=5, help='Sequence Length')
 parser.add_argument('--w', type=int, default=3, help='filter size for seqNet')
 parser.add_argument('--outDims', type=int, default=None, help='Output descriptor dimensions')
 parser.add_argument('--margin', type=float, default=0.1, help='Margin for triplet loss. Default=0.1')
-parser.add_argument('--descType', type=str, default="netvlad-pytorch", help='underlying descriptor type')
+parser.add_argument('--descType', type=str, default="netvlad-pytorch", help='underlying descriptor type') #netvlad回环检测
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     model_out_path = join(opt.savePath, filename)
@@ -115,7 +117,7 @@ if __name__ == "__main__":
     np.random.seed(opt.seed)
     torch.manual_seed(opt.seed)
     if cuda:
-        torch.cuda.manual_seed(opt.seed)
+        torch.cuda.manual_seed(opt.seed) #设置随机种子后，torch.rand(1) 每次返回固定值
 
     print('===> Loading dataset(s)')
     dataset, encoder_dim = get_dataset(opt)

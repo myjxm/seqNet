@@ -38,7 +38,7 @@ def get_model(opt,encoder_dim,device):
         deltaFt = seqNet.Delta(inDims=encoder_dim,seqL=opt.seqL)
         model.add_module('pool', nn.Sequential(*[deltaFt, L2Norm()]))
     elif opt.pooling.lower() == 'single':
-        single = nn.AdaptiveAvgPool2d((opt.seqL,None)) # shoud have no effect
+        single = nn.AdaptiveAvgPool2d(s) # shoud have no effect
         model.add_module('pool', nn.Sequential(*[single, Flatten(), L2Norm()]))
     elif opt.pooling.lower() == 'single+seqmatch':
 
