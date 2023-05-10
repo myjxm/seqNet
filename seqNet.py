@@ -7,16 +7,16 @@ class seqNet(nn.Module):
 
         super(seqNet, self).__init__()
         self.inDims = inDims
-        #print("seqNet inDims:" + str(self.inDims)) #4096
+        print("seqNet inDims:" + str(self.inDims)) #4096
         self.outDims = outDims
-        #print("seqNet outDims:" + str(self.outDims)) #4096
+        print("seqNet outDims:" + str(self.outDims)) #4096
         self.w = w
-        #print("seqNet w:" + str(self.w)) #5
+        print("seqNet w:" + str(self.w)) #5
         self.conv = nn.Conv1d(inDims, outDims, kernel_size=self.w)
 
     def forward(self, x):
 
-        #print("seqNet inputx: "+ str(np.shape(x)))  #cache torch.Size([24, 10, 4096])  train torch.Size([192, 10, 4096])  seqL=10
+        #print("seqNet inputx: "+ str(np.shape(x)))  #cache torch.Size([24, 10, 4096])  train torch.Size([192, 10, 4096])
         if len(x.shape) < 3:
             x = x.unsqueeze(1) # convert [B,C] to [B,1,C]
 

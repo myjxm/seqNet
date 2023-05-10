@@ -8,8 +8,6 @@ from os import remove
 import h5py
 from math import ceil
 
-## 算cache时用whole_training_data_loader,取的是descData里预生成的npy格式描述符，训练时用 training_data_loader，取的时cache写入的h5文件,然后定位出positive和negatives的位置，再去npy里取数据
-
 def train(opt, model, encoder_dim, device, dataset, criterion, optimizer, train_set, whole_train_set, whole_training_data_loader, epoch, writer):  #criterion 准则
     epoch_loss = 0
     startIter = 1 # keep track of batch iter across subsets for logging
@@ -35,7 +33,7 @@ def train(opt, model, encoder_dim, device, dataset, criterion, optimizer, train_
                 pool_size = opt.outDims  #4096
             h5feat = h5.create_dataset("features", [len(whole_train_set), pool_size], dtype=np.float32)
             #print("whole_training_data_loader:" + str(len(whole_training_data_loader))) #1250
-            with torch.no_grad():  #猜测：将整个数据集每个图片（是预生成的描述符）用当前seqnet计算描述符，存至h5feat
+            with torch.no_grad():  #猜测：将整个数据集每个图片用当前seqnet计算描述符，存至h5feat
                 for iteration, (input, indices) in tqdm(enumerate(whole_training_data_loader, 1),total=len(whole_training_data_loader)-1, leave=False):
                     #print("input:" +  str(np.shape(input))) #[24, 10, 4096]
                     #print(indices) # 每次取24个，依次后推直至29999 [ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]

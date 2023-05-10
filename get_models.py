@@ -38,17 +38,22 @@ def get_model(opt,encoder_dim,device):
         deltaFt = seqNet.Delta(inDims=encoder_dim,seqL=opt.seqL)
         model.add_module('pool', nn.Sequential(*[deltaFt, L2Norm()]))
     elif opt.pooling.lower() == 'single':
-        single = nn.AdaptiveAvgPool2d(s) # shoud have no effect
+        single = nn.AdaptiveAvgPool2d((opt.seqL,None)) # shoud have no effect
         model.add_module('pool', nn.Sequential(*[single, Flatten(), L2Norm()]))
     elif opt.pooling.lower() == 'single+seqmatch':
 
         model.add_module('pool', nn.Sequential(*[L2Norm(dim=-1)]))
     else:
         raise ValueError('Unknown pooling type: ' + opt.pooling)
-
+    
+    print('memory used before add to device')
+    print(torch.cuda.memory_allocated())
+    print(torch.cuda.max_memory_allocated())
     if not opt.resume:
         model = model.to(device)
-
+    print('memory used after add to device')
+    print(torch.cuda.memory_allocated())
+    print(torch.cuda.max_memory_allocated())
     scheduler, optimizer, criterion = None, None, None
     if opt.mode.lower() == 'train':
         if opt.optim.upper() == 'ADAM':

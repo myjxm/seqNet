@@ -17,7 +17,6 @@ from get_models import get_model
 from train import train
 from test import test
 
-
 parser = argparse.ArgumentParser(description='seqnet')
 parser.add_argument('--mode', type=str, default='train', help='Mode', choices=['train', 'test'])
 
@@ -52,10 +51,9 @@ parser.add_argument('--evalEvery', type=int, default=1, help='Do a validation se
 parser.add_argument('--patience', type=int, default=0, help='Patience for early stopping. 0 is off.')
 parser.add_argument('--split', type=str, default='val', help='Data split to use for testing. Default is val', choices=['test', 'train', 'val'])
 parser.add_argument('--numSamples2Project', type=int, default=-1, help='TSNE uses these many samples ([:n]) to project data to 2D; set to -1 to disable')
-
 parser.add_argument('--extractOnly',  action='store_true', help='extract descriptors')
 parser.add_argument('--predictionsFile', type=str, default=None, help='path to prior predictions data')
-parser.add_argument('--seqL_filterData', type=int, help='during testing, db and qry inds will be removed that violate sequence boundaries for this given sequence length')  #在测试期间，将删除那些违反给定序列长度边界的数据库（db）和查询（qry）索引
+parser.add_argument('--seqL_filterData', type=int, help='during testing, db and qry inds will be removed that violate sequence boundaries for this given sequence length')
 
 # dataset, model etc.
 parser.add_argument('--dataset', type=str, default='nordland-sw', help='Dataset to use', choices=['nordland-sw', 'nordland-sf', 'oxford-v1.0', 'oxford-pnv', 'msls'])
