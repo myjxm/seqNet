@@ -224,13 +224,13 @@ def print_db_concise(db):
 class WholeDatasetFromStruct(data.Dataset):
     def __init__(self, structFile, indsSplit, dbDescs, qDescs, onlyDB=False, seqL=1, seqBounds=None,seqL_filterData=None):
         super().__init__()
-        print("indsSplit",indsSplit)
-        print("dbDescs",dbDescs)
+        #print("indsSplit",indsSplit)
+        #print("dbDescs",dbDescs)
         self.seqL = seqL
         self.filterBoundaryInds = False if seqL_filterData is None else True
 
         self.dbStruct = parse_db_struct(structFile)
-        print("self.dbStruct",self.dbStruct)
+        #print("self.dbStruct",self.dbStruct)
 
         self.images = dbDescs[indsSplit[0]]
 
