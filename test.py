@@ -62,15 +62,22 @@ def test(opt, model, encoder_dim, device, eval_set, writer, epoch=0, extract_noE
             dbFeat = torch.empty((len(eval_set), pool_size),device=device)
 
         durs_batch = []
+        printnum = 0
         for iteration, (input, indices) in tqdm(enumerate(test_data_loader, 1),total=len(test_data_loader)-1, leave=False):
             t1 = time.time()
             input = input.float().to(device)
+            if printnum > 0:
+                print(input.shape)
+                print('input:{}'.format(str(input)))
             if opt.pooling.lower() == 's1+seqmatch':
                 shapeOrig = input.shape
                 input = input.reshape([-1,input.shape[-1]])
                 seq_encoding = model.pool(input).reshape(shapeOrig)
             else:
                 seq_encoding = model.pool(input)
+            if printnum > 0:
+                print(seq_encoding.shape)
+                print('seq_encoding:{}'.format(str(seq_encoding)))
             if 'seqmatch' in opt.pooling.lower():
                 dbFeat[indices,:,:] = seq_encoding
             else:
@@ -80,6 +87,7 @@ def test(opt, model, encoder_dim, device, eval_set, writer, epoch=0, extract_noE
                     len(test_data_loader)), flush=True)
             durs_batch.append(time.time()-t1)
             del input
+            printnum = printnum - 1
     del test_data_loader
     print("Average batch time:", np.mean(durs_batch), np.std(durs_batch))
 
@@ -90,6 +98,8 @@ def test(opt, model, encoder_dim, device, eval_set, writer, epoch=0, extract_noE
 
     qFeat_np = qFeat.detach().cpu().numpy().astype('float32')
     dbFeat_np = dbFeat.detach().cpu().numpy().astype('float32')
+    print(qFeat_np)
+    print(dbFeat_np)
 
     db_emb, q_emb = None, None
     if opt.numSamples2Project != -1 and writer is not None:
@@ -126,6 +136,7 @@ def test(opt, model, encoder_dim, device, eval_set, writer, epoch=0, extract_noE
 
     # for each query get those within threshold distance
     gt,gtDists = eval_set.get_positives(retDists=True)
+    #print(gt)
     gtDistsMat = cdist(eval_set.dbStruct.utmDb,eval_set.dbStruct.utmQ)
 
     # compute recall for different loc radii
@@ -134,7 +145,9 @@ def test(opt, model, encoder_dim, device, eval_set, writer, epoch=0, extract_noE
         gtAtL = gtDistsMat <= locRad
         gtAtL = [np.argwhere(gtAtL[:,qIx]).flatten() for qIx in range(gtDistsMat.shape[1])]
         rAtL.append(getRecallAtN(n_values, predictions, gtAtL))
-
+    print('====> Calculating recall @ N')
+    print(gt)
+    print(predictions)
     recall_at_n = getRecallAtN(n_values, predictions, gt)
 
     recalls = {} #make dict for output

@@ -17,7 +17,7 @@ def get_dataset(opt):
         ft1 = np.load(join(prefix_data,"descData/{}/nordland-clean-{}.npy".format(opt.descType,ref)))
         ft2 = np.load(join(prefix_data,"descData/{}/nordland-clean-{}.npy".format(opt.descType,qry)))
         trainInds, testInds, valInds = np.arange(15000), np.arange(15100,18100), np.arange(18200,21200)
-
+        #trainInds, testInds, valInds = np.arange(15000), np.arange(15000, 18000), np.arange(18000, 21000)
         dataset.trainInds = [trainInds, trainInds]
         dataset.valInds = [valInds, valInds]
         dataset.testInds = [testInds, testInds]
@@ -55,7 +55,7 @@ def get_dataset(opt):
         seqBounds_all, ft_all = [], []
         for splitCity, trav in product([trainCity, valCity],[trav1, trav2]):
             seqBounds_all.append(np.loadtxt(f"./structFiles/seqBoundsFiles/msls_{splitCity}_{trav}_seqBounds.txt",int))
-            ft_all.append(np.load(ftReadPath.format(opt.descType,splitCity,trav)))
+            ft_all.append(np.load(ftReadPath.format(opt.deascType,splitCity,trav)))
         ft_train_ref, ft_train_qry, ft_val_ref, ft_val_qry = ft_all
         sb_train_ref, sb_train_qry, sb_val_ref, sb_val_qry = seqBounds_all
         dataset.trainInds = [np.arange(ft_train_ref.shape[0]),np.arange(ft_train_qry.shape[0])] # append ref & qry

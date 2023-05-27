@@ -31,6 +31,7 @@ def get_model(opt,encoder_dim,device):
     elif opt.pooling.lower() == 'seqnet':
         seqFt = seqNet.seqNet(encoder_dim, opt.outDims, opt.seqL, opt.w)
         model.add_module('pool', nn.Sequential(*[seqFt, Flatten(), L2Norm()]))
+
     elif opt.pooling.lower() == 's1+seqmatch':
         seqFt = seqNet.seqNet(encoder_dim, opt.outDims, 1, opt.w)
         model.add_module('pool', nn.Sequential(*[seqFt, Flatten(), L2Norm()]))

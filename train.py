@@ -61,10 +61,10 @@ def train(opt, model, encoder_dim, device, dataset, criterion, optimizer, train_
             if query is None:
                 continue # in case we get an empty batch
             B = query.shape[0]
-            print("query: " + str(query.shape)) #torch.Size([16, 10, 4096])
-            print("positives: " + str(positives.shape)) #torch.Size([16, 10, 4096])
-            print("negatives: " + str(negatives.shape))#torch.Size([160, 10, 4096])
-            print("negCounts: " + str(negCounts))  #tensor([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
+            # print("query: " + str(query.shape)) #torch.Size([16, 10, 4096])
+            # print("positives: " + str(positives.shape)) #torch.Size([16, 10, 4096])
+            # print("negatives: " + str(negatives.shape))#torch.Size([160, 10, 4096])
+            # print("negCounts: " + str(negCounts))  #tensor([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
             nNeg = torch.sum(negCounts)
 
             input = torch.cat([query,positives,negatives]).float()
